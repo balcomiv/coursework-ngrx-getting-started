@@ -9,7 +9,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "source-map-explorer": "source-map-explorer dist/APM/**/*.js"
+    "source-map-explorer-one": "source-map-explorer dist/APM/**/*.js",
+    "source-map-explorer": "source-map-explorer dist/APM/main-es2015.c195b4f50af02d4cd519.js"
   },
   "private": true,
   "dependencies": {
