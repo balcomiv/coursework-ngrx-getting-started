@@ -42,6 +42,18 @@ export const getProducts = createSelector(
   (state) => state.products
 );
 
+/*
+  //  Composing Selectors
+  //  Rule: When building selectors, define one for each bit of state that is accessed from the store
+  export const getCurrentProduct = createSelector(
+    getProductFeatureState,
+    getCurrentProductId,
+    (state, currentProductId =>
+      state.products.find(p => p.id === currentProductId))
+  )
+
+*/
+
 export const productReducer = createReducer<ProductState>(
   initialState,
   on(createAction('[Product] Toggle Product Code'), (state): ProductState => {
