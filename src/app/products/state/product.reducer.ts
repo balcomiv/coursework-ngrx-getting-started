@@ -1,4 +1,10 @@
-import { createAction, createReducer, on } from '@ngrx/store';
+import {
+  createAction,
+  createFeatureSelector,
+  createReducer,
+  createSelector,
+  on,
+} from '@ngrx/store';
 import * as AppState from '../../state/app.state';
 import { Product } from '../product';
 
@@ -16,6 +22,25 @@ const initialState: ProductState = {
   currentProduct: null, //  Fix Me - Course isn't doing strict checks...
   products: [],
 };
+
+//  Not exported, so it can only be used inside of this module
+const getProductFeatureState = createFeatureSelector<ProductState>('products');
+
+//  Exported to be used anywhere
+export const getShowProductCode = createSelector(
+  getProductFeatureState,
+  (state) => state.showProductCode
+);
+
+export const getCurrentProduct = createSelector(
+  getProductFeatureState,
+  (state) => state.currentProduct
+);
+
+export const getProducts = createSelector(
+  getProductFeatureState,
+  (state) => state.products
+);
 
 export const productReducer = createReducer<ProductState>(
   initialState,
