@@ -1,6 +1,7 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 // Imports for loading & configuring the in-memory web api
@@ -16,10 +17,6 @@ import { ProductData } from './products/product-data';
 /* Feature Modules */
 import { UserModule } from './user/user.module';
 
-
-
-
-
 @NgModule({
   imports: [
     BrowserModule,
@@ -31,15 +28,17 @@ import { UserModule } from './user/user.module';
     StoreDevtoolsModule.instrument({
       name: 'APM Demo App Devtools',
       maxAge: 25,
-      logOnly: environment.production })
+      logOnly: environment.production,
+    }),
+    EffectsModule.forRoot([]),
   ],
   declarations: [
     AppComponent,
     ShellComponent,
     MenuComponent,
     WelcomeComponent,
-    PageNotFoundComponent
+    PageNotFoundComponent,
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
