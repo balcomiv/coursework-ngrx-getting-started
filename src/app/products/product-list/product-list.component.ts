@@ -1,10 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 import { Product } from '../product';
 import { ProductService } from '../product.service';
 import * as ProductActions from '../state/product.actions';
 import {
   getCurrentProduct,
+  getProducts,
   getShowProductCode,
   State,
 } from '../state/product.reducer';
@@ -15,41 +17,27 @@ import {
 })
 export class ProductListComponent implements OnInit, OnDestroy {
   pageTitle = 'Products';
+
   errorMessage: string;
 
-  displayCode: boolean;
+  products$: Observable<Product[]>; //  Note they aren't using strict checks...
+  selectedProduct$: Observable<Product>;
+  displayCode$: Observable<boolean>;
 
-  products: Product[];
+  constructor(private store: Store<State>) {}
 
-  // Used to highlight the selected product in the list
-  selectedProduct: Product | null;
-
-  constructor(
-    private store: Store<State>,
-    private productService: ProductService
-  ) {}
   ngOnDestroy(): void {
     throw new Error('Method not implemented.');
   }
 
   ngOnInit(): void {
-    //  Todo: handle unsubscribe
-    this.store.select(getCurrentProduct).subscribe((currentProduct) => {
-      this.selectedProduct = currentProduct;
-    });
+    this.products$ = this.store.select(getProducts);
 
-    this.productService.getProducts().subscribe({
-      next: (products: Product[]) => (this.products = products),
-      error: (err) => (this.errorMessage = err),
-    });
+    this.store.dispatch(ProductActions.loadProduct());
 
-    // this.store
-    //   .select('products')
-    //   .subscribe((products) => (this.displayCode = products.showProductCode));
+    this.selectedProduct$ = this.store.select(getCurrentProduct);
 
-    this.store
-      .select(getShowProductCode)
-      .subscribe((showProductCode) => (this.displayCode = showProductCode));
+    this.displayCode$ = this.store.select(getShowProductCode);
   }
 
   checkChanged(): void {
