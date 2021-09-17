@@ -8,7 +8,10 @@ export const toggleProductCode = createAction('[Product] Toggle Product code');
 //#region Current Product
 export const setCurrentProduct = createAction(
   '[Product] Set Current Product',
-  props<{ product: Product }>() //  metadata defining the structure of the returned data
+  // Props:
+  // Metadata defining the structure of the returned data.
+  // Don't need null because we call 'clear current product' action to clear
+  props<{ currentProductId: number }>()
 );
 
 export const clearCurrentProduct = createAction(

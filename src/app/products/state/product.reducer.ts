@@ -13,14 +13,14 @@ export interface State extends AppState.State {
 }
 export interface ProductState {
   showProductCode: boolean;
-  currentProduct: Product;
+  currentProductId: number | boolean; // Id to avoid having 2 copies of the same data (Product && Products[])
   products: Product[];
   error: string;
 }
 
 const initialState: ProductState = {
   showProductCode: true,
-  currentProduct: null, //  Fix Me - Course isn't doing strict checks...
+  currentProductId: null, //  Fix Me - Course isn't doing strict checks...
   products: [],
   error: '',
 };
@@ -34,9 +34,31 @@ export const getShowProductCode = createSelector(
   (state) => state.showProductCode
 );
 
+export const getCurrentProductId = createSelector(
+  getProductFeatureState,
+  (state) => state.currentProductId
+);
+
 export const getCurrentProduct = createSelector(
   getProductFeatureState,
-  (state) => state.currentProduct
+  getCurrentProductId,
+  (state, currentProductId) => {
+    //  New Product
+    if (currentProductId === 0) {
+      return {
+        id: 0,
+        productName: '',
+        productCode: 'New',
+        description: '',
+        starRating: 0,
+      };
+    } else {
+      //  Get product by id from state (or null [no product selected])
+      return currentProductId
+        ? state.products.find((product) => product.id === currentProductId)
+        : null;
+    }
+  }
 );
 
 export const getProducts = createSelector(
@@ -73,27 +95,21 @@ export const productReducer = createReducer<ProductState>(
     ProductActions.setCurrentProduct,
     (state, action): ProductState => ({
       ...state,
-      currentProduct: action.product,
+      currentProductId: action.currentProductId,
     })
   ),
   on(
     ProductActions.clearCurrentProduct,
     (state): ProductState => ({
       ...state,
-      currentProduct: null,
+      currentProductId: null,
     })
   ),
   on(
     ProductActions.initializeCurrentProduct,
     (state): ProductState => ({
       ...state,
-      currentProduct: {
-        id: 0,
-        productName: '',
-        productCode: 'New',
-        description: '',
-        starRating: 0,
-      },
+      currentProductId: 0, //  Because the current product selector will now init new product if id === 0. TODO: Unit Test
     })
   ),
   on(
