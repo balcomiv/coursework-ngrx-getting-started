@@ -1,11 +1,11 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { Product } from '../product';
-import { ProductService } from '../product.service';
 import * as ProductActions from '../state/product.actions';
 import {
   getCurrentProduct,
+  getError,
   getProducts,
   getShowProductCode,
   State,
@@ -15,23 +15,23 @@ import {
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.css'],
 })
-export class ProductListComponent implements OnInit, OnDestroy {
+export class ProductListComponent implements OnInit {
   pageTitle = 'Products';
 
-  errorMessage: string;
-
   products$: Observable<Product[]>; //  Note they aren't using strict checks...
+
   selectedProduct$: Observable<Product>;
+
   displayCode$: Observable<boolean>;
+
+  errorMessage$: Observable<string>;
 
   constructor(private store: Store<State>) {}
 
-  ngOnDestroy(): void {
-    throw new Error('Method not implemented.');
-  }
-
   ngOnInit(): void {
     this.products$ = this.store.select(getProducts);
+
+    this.errorMessage$ = this.store.select(getError);
 
     this.store.dispatch(ProductActions.loadProduct());
 

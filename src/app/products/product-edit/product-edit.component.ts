@@ -1,6 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Store } from '@ngrx/store';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
 import { GenericValidator } from '../../shared/generic-validator';
 import { NumberValidators } from '../../shared/number.validator';
 import { Product } from '../product';
@@ -16,12 +18,13 @@ export class ProductEditComponent implements OnInit, OnDestroy {
   errorMessage = '';
   productForm: FormGroup;
 
-  product: Product | null;
-
   // Use with the generic validation message class
   displayMessage: { [key: string]: string } = {};
   private validationMessages: { [key: string]: { [key: string]: string } };
   private genericValidator: GenericValidator;
+  product$: Observable<Product | null>;
+
+  destroyed$ = new Subject<void>();
 
   constructor(
     private store: Store<State>,
@@ -48,9 +51,6 @@ export class ProductEditComponent implements OnInit, OnDestroy {
     // passing in this form's set of validation messages.
     this.genericValidator = new GenericValidator(this.validationMessages);
   }
-  ngOnDestroy(): void {
-    throw new Error('Method not implemented.');
-  }
 
   ngOnInit(): void {
     // Define the form group
@@ -70,17 +70,23 @@ export class ProductEditComponent implements OnInit, OnDestroy {
 
     // Watch for changes to the currently selected product
     //  TODO: Unsubscribe
-    this.store.select(getCurrentProduct).subscribe((currentProduct) => {
-      this.displayProduct(currentProduct);
-    });
+    this.product$ = this.store
+      .select(getCurrentProduct)
+      .pipe(tap((currentProduct) => this.displayProduct(currentProduct)));
 
     // Watch for value changes for validation
-    this.productForm.valueChanges.subscribe(
-      () =>
-        (this.displayMessage = this.genericValidator.processMessages(
-          this.productForm
-        ))
-    );
+    this.productForm.valueChanges
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(
+        () =>
+          (this.displayMessage = this.genericValidator.processMessages(
+            this.productForm
+          ))
+      );
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed$.next();
   }
 
   // Also validate on blur
@@ -92,9 +98,6 @@ export class ProductEditComponent implements OnInit, OnDestroy {
   }
 
   displayProduct(product: Product | null): void {
-    // Set the local product property
-    this.product = product;
-
     if (product) {
       // Reset the form back to pristine
       this.productForm.reset();

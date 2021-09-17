@@ -15,12 +15,14 @@ export interface ProductState {
   showProductCode: boolean;
   currentProduct: Product;
   products: Product[];
+  error: string;
 }
 
 const initialState: ProductState = {
   showProductCode: true,
   currentProduct: null, //  Fix Me - Course isn't doing strict checks...
   products: [],
+  error: '',
 };
 
 //  Not exported, so it can only be used inside of this module
@@ -40,6 +42,11 @@ export const getCurrentProduct = createSelector(
 export const getProducts = createSelector(
   getProductFeatureState,
   (state) => state.products
+);
+
+export const getError = createSelector(
+  getProductFeatureState,
+  (state) => state.error
 );
 
 /*
@@ -94,6 +101,15 @@ export const productReducer = createReducer<ProductState>(
     (state, action): ProductState => ({
       ...state,
       products: action.products,
+      error: '',
+    })
+  ),
+  on(
+    ProductActions.loadProductFailure,
+    (state, action): ProductState => ({
+      ...state,
+      products: [],
+      error: action.error,
     })
   )
 );
